@@ -2,6 +2,7 @@ import Foundation
 
 actor ITunesClient {
     private var cache: [String: [OnlineTrack]] = [:]
+    private var artworkCache: [String: UInt64?] = [:]
 
     func search(artist: String, album: String) async throws -> [OnlineTrack] {
         let term = "\(artist) \(album)"
@@ -40,5 +41,36 @@ actor ITunesClient {
         cache[key] = payload.results
         try await Task.sleep(nanoseconds: 220_000_000)
         return payload.results
+    }
+
+    func artworkHash(urlString: String) async -> UInt64? {
+        if let cached = artworkCache[urlString] {
+            return cached
+        }
+        let highResolution = urlString
+            .replacingOccurrences(of: "100x100bb", with: "600x600bb")
+            .replacingOccurrences(of: "100x100-75", with: "600x600-75")
+        guard let url = URL(string: highResolution) else {
+            artworkCache[urlString] = nil
+            return nil
+        }
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 15
+        request.setValue(
+            "AppleMusicMetadataFixer/1.1",
+            forHTTPHeaderField: "User-Agent"
+        )
+        guard
+            let (data, response) = try? await URLSession.shared.data(for: request),
+            let http = response as? HTTPURLResponse,
+            (200..<300).contains(http.statusCode),
+            data.count <= 12_000_000
+        else {
+            artworkCache[urlString] = nil
+            return nil
+        }
+        let hash = ArtworkHasher.hash(imageData: data)
+        artworkCache[urlString] = hash
+        return hash
     }
 }

@@ -14,6 +14,8 @@ struct TrackSnapshot: Codable, Identifiable, Hashable {
     let trackCount: Int
     let duration: Double
     let dateAdded: Double
+    let artworkHexPath: String?
+    var artworkHash: UInt64?
 
     var id: String { persistentID }
     var position: String {
@@ -37,6 +39,7 @@ struct TrackSnapshot: Codable, Identifiable, Hashable {
 struct ReadRequest: Codable {
     let since: Double
     let pendingPersistentIDs: [String]
+    let artworkDirectory: String
 }
 
 struct TrackUpdate: Codable, Identifiable {
@@ -115,6 +118,7 @@ struct OnlineTrack: Decodable {
     let trackCount: Int?
     let releaseDate: String?
     let trackTimeMillis: Int?
+    let artworkUrl100: String?
 }
 
 struct DisplayChange: Identifiable, Codable {

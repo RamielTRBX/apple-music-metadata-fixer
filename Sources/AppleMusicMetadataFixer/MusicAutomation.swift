@@ -11,15 +11,24 @@ struct MusicAutomation {
         since: Date,
         pendingPersistentIDs: [String]
     ) async throws -> [TrackSnapshot] {
+        let artworkDirectory = try storage.makeTemporaryDirectory(prefix: "artwork")
+        defer { try? FileManager.default.removeItem(at: artworkDirectory) }
         let request = ReadRequest(
             since: since.timeIntervalSince1970 * 1000,
-            pendingPersistentIDs: pendingPersistentIDs
+            pendingPersistentIDs: pendingPersistentIDs,
+            artworkDirectory: artworkDirectory.path
         )
         let data = try await executeScript(
             resource: "music_read",
             request: request
         )
-        return try JSONDecoder().decode([TrackSnapshot].self, from: data)
+        return try JSONDecoder().decode([TrackSnapshot].self, from: data).map {
+            var track = $0
+            if let path = track.artworkHexPath {
+                track.artworkHash = ArtworkHasher.hash(hexDescriptor: path)
+            }
+            return track
+        }
     }
 
     func applyUpdates(_ updates: [TrackUpdate]) async throws -> ApplyResult {

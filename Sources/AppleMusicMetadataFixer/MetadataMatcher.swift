@@ -34,7 +34,7 @@ struct MetadataMatcher {
             return directCuratedChanges(for: tracks, error: error.localizedDescription)
         }
 
-        var candidate = bestCandidate(
+        var candidate = await bestCandidate(
             from: results,
             tracks: tracks,
             artist: searchArtist,
@@ -46,7 +46,7 @@ struct MetadataMatcher {
                     artist: searchArtist,
                     album: first.name
                 )
-                candidate = bestCandidate(
+                candidate = await bestCandidate(
                     from: titleResults,
                     tracks: tracks,
                     artist: searchArtist,
@@ -234,6 +234,7 @@ private struct CandidateCollection {
     let name: String
     let tracks: [OnlineTrack]
     let score: Double
+    let coverSimilarity: Double?
 }
 
 private extension MetadataMatcher {
@@ -242,7 +243,7 @@ private extension MetadataMatcher {
         tracks: [TrackSnapshot],
         artist: String,
         album: String
-    ) -> CandidateCollection? {
+    ) async -> CandidateCollection? {
         let grouped = Dictionary(
             grouping: results.filter {
                 $0.collectionId != nil && $0.trackName != nil
@@ -295,11 +296,48 @@ private extension MetadataMatcher {
                 id: id,
                 name: name,
                 tracks: items,
-                score: score
+                score: score,
+                coverSimilarity: nil
             )
         }
 
-        guard let best = ranked.sorted(by: { $0.score > $1.score }).first else {
+        let localCoverHash = tracks.compactMap(\.artworkHash).first
+        var rescored: [CandidateCollection] = []
+        for candidate in ranked.sorted(by: { $0.score > $1.score }).prefix(6) {
+            var score = candidate.score
+            var coverSimilarity: Double?
+            if let localCoverHash,
+               let artworkURL = candidate.tracks.first?.artworkUrl100,
+               let onlineCoverHash = await client.artworkHash(urlString: artworkURL) {
+                let similarity = ArtworkHasher.similarity(
+                    localCoverHash,
+                    onlineCoverHash
+                )
+                coverSimilarity = similarity
+                if similarity >= 0.72 {
+                    score += 25
+                } else if similarity >= 0.55 {
+                    score += 10
+                } else if similarity < 0.42 {
+                    // A clearly different cover is strong evidence that this is
+                    // another album containing a similar recording.
+                    score -= 35
+                }
+            }
+            rescored.append(
+                CandidateCollection(
+                    id: candidate.id,
+                    name: candidate.name,
+                    tracks: candidate.tracks,
+                    score: score,
+                    coverSimilarity: coverSimilarity
+                )
+            )
+        }
+        guard let best = rescored.sorted(by: { $0.score > $1.score }).first else {
+            return nil
+        }
+        if let similarity = best.coverSimilarity, similarity < 0.42 {
             return nil
         }
         return best.score >= 72 ? best : nil
@@ -313,9 +351,10 @@ private extension MetadataMatcher {
             ($0.discNumber ?? 1) == local.discNumber
                 && ($0.trackNumber ?? 0) == local.trackNumber
         }
-        if let exact = exactPosition.first,
-           durationMatches(local, exact) {
-            return exact
+        if !exactPosition.isEmpty {
+            return exactPosition.first(where: {
+                durationMatches(local, $0)
+            })
         }
 
         let titleMatches = candidates.filter {
@@ -327,11 +366,7 @@ private extension MetadataMatcher {
             return titleMatch
         }
 
-        return candidates
-            .filter { durationMatches(local, $0) }
-            .min {
-                durationDifference(local, $0) < durationDifference(local, $1)
-            }
+        return nil
     }
 
     func durationMatches(_ local: TrackSnapshot, _ online: OnlineTrack) -> Bool {
@@ -351,13 +386,13 @@ private extension MetadataMatcher {
     ) -> Bool {
         guard current != candidate else { return false }
         if normalized(current) == normalized(candidate) { return false }
+        if hasCuratedTitle { return false }
         // Lyrics do not determine title language. If the current official
         // title is already Japanese or Chinese, never replace it with an
         // English alternative from another catalog edition.
         if containsJapanese(current) && !containsJapanese(candidate) {
             return false
         }
-        if hasCuratedTitle { return true }
         if !containsJapanese(current) && !containsJapanese(candidate) {
             return true
         }
@@ -371,10 +406,10 @@ private extension MetadataMatcher {
     ) -> Bool {
         guard current != candidate else { return false }
         if normalized(current) == normalized(candidate) { return false }
+        if hasCuratedAlbum { return false }
         if containsJapanese(current) && !containsJapanese(candidate) {
             return false
         }
-        if hasCuratedAlbum { return true }
         if !containsJapanese(current) && !containsJapanese(candidate) {
             return true
         }

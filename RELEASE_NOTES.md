@@ -1,6 +1,20 @@
-# Apple Music 音乐信息订正 1.2.0
+# Apple Music 音乐信息订正 1.3.0
 
 首个公开版本。
+
+## 1.3.0
+
+- Added perceptual album-artwork comparison.
+- Rejects candidate albums whose covers clearly differ from the local artwork.
+- Keeps artwork comparison optional when either side has no image.
+
+## 1.2.1
+
+- Fixed `Shandy Gaff` being incorrectly matched to `Aoi`.
+- Fixed `Adapt` being incorrectly matched to `魚図鑑`.
+- Required exact track positions to pass the duration check before a candidate
+  can be used.
+- Added verified mappings for `シャンディガフ` and `アダプト(ADAPT)`.
 
 ## 功能
 

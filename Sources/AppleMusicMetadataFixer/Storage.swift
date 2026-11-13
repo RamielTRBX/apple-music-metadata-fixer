@@ -108,6 +108,18 @@ final class AppStorage {
         return url
     }
 
+    func makeTemporaryDirectory(prefix: String) throws -> URL {
+        let url = temporaryURL.appendingPathComponent(
+            "\(prefix)-\(UUID().uuidString)",
+            isDirectory: true
+        )
+        try fileManager.createDirectory(
+            at: url,
+            withIntermediateDirectories: true
+        )
+        return url
+    }
+
     static let encoder: JSONEncoder = {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601

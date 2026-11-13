@@ -72,6 +72,15 @@ function run(argv) {
     if (added < cutoff && !pending.has(persistentID)) {
       continue;
     }
+    let artworkHexPath = null;
+    try {
+      const artworks = tracks[index].artworks();
+      if (artworks.length > 0) {
+        const raw = ObjC.unwrap(artworks[0].rawData());
+        artworkHexPath = `${request.artworkDirectory}/${persistentID}.hex`;
+        writeText(artworkHexPath, String(raw));
+      }
+    } catch {}
     rows.push({
       persistentID,
       databaseID: Number(databaseIDs[index]),
@@ -85,7 +94,8 @@ function run(argv) {
       trackNumber: Number(trackNumbers[index] || 0),
       trackCount: Number(trackCounts[index] || 0),
       duration: Number(durations[index] || 0),
-      dateAdded: added
+      dateAdded: added,
+      artworkHexPath
     });
   }
 
