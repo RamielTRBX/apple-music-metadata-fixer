@@ -1,0 +1,10 @@
+.DS_Store
+.build/
+*.app/
+*.dmg
+*.iconset/
+icon-test/
+icon-test-app/
+AppIcon-preview.png
+dmg-stage*/
+safe_apply_test_*.json

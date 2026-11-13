@@ -1,0 +1,23 @@
+name: Feature request
+description: Suggest a metadata or matching-rule improvement
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+    validations:
+      required: true
+  - type: textarea
+    id: examples
+    attributes:
+      label: Example songs or albums
+      description: Use public metadata only; do not include account or library data.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety
+      options:
+        - label: This change should avoid guessing when confidence is low.
+          required: true

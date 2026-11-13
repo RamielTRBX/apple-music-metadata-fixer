@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="panel" x1="190" y1="130" x2="850" y2="900" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.58" stop-color="#fdfdfd"/>
+      <stop offset="1" stop-color="#f3f3f5"/>
+    </linearGradient>
+    <linearGradient id="rim" x1="175" y1="145" x2="850" y2="880" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#cfcfd4"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="ink" x1="0" y1="285" x2="0" y2="775" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#080809"/>
+      <stop offset="0.60" stop-color="#121214"/>
+      <stop offset="1" stop-color="#38383d"/>
+    </linearGradient>
+    <filter id="panelShadow" x="-25%" y="-25%" width="150%" height="165%">
+      <feDropShadow dx="0" dy="22" stdDeviation="27" flood-color="#000000" flood-opacity="0.24"/>
+    </filter>
+    <filter id="glyphShadow" x="-25%" y="-20%" width="150%" height="155%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+    <filter id="badgeShadow" x="-40%" y="-30%" width="180%" height="190%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity="0.24"/>
+    </filter>
+    <clipPath id="clip">
+      <rect x="100" y="100" width="824" height="824" rx="190"/>
+    </clipPath>
+  </defs>
+
+  <rect x="100" y="100" width="824" height="824" rx="190"
+        fill="#f7f7f8" filter="url(#panelShadow)"/>
+  <rect x="100" y="100" width="824" height="824" rx="190" fill="url(#panel)"/>
+  <g clip-path="url(#clip)">
+    <ellipse cx="330" cy="210" rx="530" ry="285" fill="#ffffff" opacity="0.92"/>
+    <ellipse cx="760" cy="880" rx="430" ry="290" fill="#d9d9dd" opacity="0.13"/>
+    <rect x="100" y="100" width="824" height="290" fill="#ffffff" opacity="0.16"/>
+  </g>
+  <rect x="107" y="107" width="810" height="810" rx="183"
+        fill="none" stroke="url(#rim)" stroke-width="5"/>
+
+  <text x="500" y="795"
+        text-anchor="middle"
+        font-family="Apple Symbols"
+        font-size="755"
+        font-weight="400"
+        fill="url(#ink)"
+        filter="url(#glyphShadow)">𝄢</text>
+
+  <g filter="url(#badgeShadow)">
+    <circle cx="759" cy="744" r="102" fill="#141416"/>
+    <circle cx="759" cy="744" r="94" fill="none" stroke="#ffffff" stroke-opacity="0.10" stroke-width="4"/>
+    <g transform="translate(759 744)" fill="#fafafa">
+      <rect x="-14" y="-82" width="28" height="40" rx="8"/>
+      <rect x="-14" y="-82" width="28" height="40" rx="8" transform="rotate(45)"/>
+      <rect x="-14" y="-82" width="28" height="40" rx="8" transform="rotate(90)"/>
+      <rect x="-14" y="-82" width="28" height="40" rx="8" transform="rotate(135)"/>
+      <rect x="-14" y="-82" width="28" height="40" rx="8" transform="rotate(180)"/>
+      <rect x="-14" y="-82" width="28" height="40" rx="8" transform="rotate(225)"/>
+      <rect x="-14" y="-82" width="28" height="40" rx="8" transform="rotate(270)"/>
+      <rect x="-14" y="-82" width="28" height="40" rx="8" transform="rotate(315)"/>
+      <circle r="57"/>
+    </g>
+    <circle cx="759" cy="744" r="26" fill="#151517"/>
+  </g>
+</svg>
